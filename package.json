@@ -1,0 +1,27 @@
+{
+  "name": "revjs",
+  "version": "1.0.0",
+  "description": "NodeJS based website to track the price changes on revzilla.com",
+  "main": "web/server.js",
+  "dependencies": {
+    "express": "^4.14.0",
+    "minimist": "^1.2.0",
+    "node-libcurl": "^1.0.0",
+    "parse5": "^3.0.1",
+    "xml2js": "^0.4.17"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/titanzhang/Liang.RevJS.git"
+  },
+  "author": "Liang Zhang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/titanzhang/Liang.RevJS/issues"
+  },
+  "homepage": "https://github.com/titanzhang/Liang.RevJS#readme"
+}
