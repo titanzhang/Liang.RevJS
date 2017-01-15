@@ -38,6 +38,6 @@ app.get('*', function(req, res) {
 	res.send('Not found');
 });
 
-app.listen(3000, function() {
-	console.log('Server is listening on port 3000');
+app.listen(loadConfig('server').port, function() {
+	console.log('Server is listening on port ' + loadConfig('server').port);
 })
