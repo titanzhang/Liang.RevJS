@@ -4,6 +4,7 @@
   "description": "NodeJS based website to track the price changes on revzilla.com",
   "main": "web/server.js",
   "dependencies": {
+    "ejs": "^2.5.5",
     "express": "^4.14.0",
     "minimist": "^1.2.0",
     "node-libcurl": "^1.0.0",
@@ -12,7 +13,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node web/server.js"
   },
   "repository": {
     "type": "git",

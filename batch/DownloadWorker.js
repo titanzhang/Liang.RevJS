@@ -1,5 +1,3 @@
-require("./base");
-
 var Worker = function(workerID, jobCallback, endCallback, callbackObj) {
 	this.ID = workerID;
 	this.jobList = [];

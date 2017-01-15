@@ -2,6 +2,7 @@ var Utils = Utils || {};
 
 Utils.curlGet = function(url, timeout) {
 	var content = "";
+	var header = "";
 	var EasyCurl = require("node-libcurl").Easy, Curl = require("node-libcurl").Curl;
 	var curl = new EasyCurl();
 	curl.setOpt(Curl.option.URL, url);
@@ -10,10 +11,38 @@ Utils.curlGet = function(url, timeout) {
 		content += buf.toString('utf8');
 		return size * nmemb;
 	});
+	curl.setOpt(Curl.option.HEADERFUNCTION, function(buf, size, nmemb) {
+		header += buf.toString('utf8');
+		return size * nmemb;
+	});
 	var ret = curl.perform();
 	curl.close();
 
-	return content;
+	var result = { status:true };
+
+	if (ret != Curl.code.CURLE_OK) {
+		result.status = false;
+		result.statusCode = 0;
+	} else {
+		var responseHeader = Utils.parseHttpHeader(header);
+		result.statusCode = responseHeader.statusCode;
+		result.content = content;
+	}
+
+	return result;
+}
+
+Utils.parseHttpHeader = function(header) {
+	var result = {};
+	var lines = header.split("\n");
+
+	// Http version, status code
+	var line = lines[0];
+	var chunks = line.split(' ');
+	result.httpVersion = chunks[0];
+	result.statusCode = parseInt(chunks[1]);
+
+	return result;
 }
 
 Utils.curlGetAsync = function(url, timeout, callback, callbackObj) {
