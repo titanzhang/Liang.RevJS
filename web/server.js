@@ -16,11 +16,7 @@ app.get('/hello/:user', function(req, res) {
 	res.render('hello', {name: req.params.user});
 });
 
-app.get('/product/index/json/:url', function(req, res) {
-	// console.log(req.params.url);
-	var model = load('web.controller.IndexController')(req.params.url);
-	res.send(model);
-});
+app.get('/product/index/json/:url', load('web.controller.IndexController'));
 
 // Handle 404
 app.get('*', function(req, res) {

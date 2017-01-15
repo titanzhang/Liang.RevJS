@@ -1,5 +1,6 @@
-module.exports = function(url) {
-	return IndexController.run(url);
+module.exports = function(req, res) {
+	// console.log(req.params.url);
+	res.send(IndexController.run(req.params.url));
 }
 
 var IndexController =  IndexController || {};
