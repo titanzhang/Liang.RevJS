@@ -46,6 +46,7 @@ stop() {
 	else
 		kill "$SERVER_PID"
 		echo "Process $SERVER_PID stopped"
+		SERVER_PID=0
 	fi
 	rm $PIDFILE > /dev/null 2>&1
 }
