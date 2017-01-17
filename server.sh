@@ -26,7 +26,7 @@ start() {
 		echo "Process already running:$SERVER_PID"
 	else
 		echo "Starting ..."
-		$CMD > /dev/null 2>&1 &
+		$CMD > /dev/null &
 		SERVER_PID=$!
 		let "SERVER_PID = $SERVER_PID + 0"
 		sleep 1
