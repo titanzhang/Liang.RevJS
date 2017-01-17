@@ -3,7 +3,7 @@ module.exports = function(req, res) {
 	var renderPage = function(context) {
 		res.send({
 			status: true,
-			result: context.indexReturn
+			docId: context.product.urlHash
 		});
 	};
 
@@ -87,6 +87,7 @@ IndexController.updateIndex = function(context) {
 		const Product = load('web.domain.Solr').Product;
 		const solrServer = load('web.domain.Solr').manager.getServer('product');
 
+		// Simplify content
 		const Utils = load('common.Utils');
 		let content = Utils.removeHTMLTags(pageContent);
 		content = Utils.deepReplace(/  /g, " ", content);
@@ -94,6 +95,7 @@ IndexController.updateIndex = function(context) {
 		content = Utils.deepReplace(/ \n/g, "\n", content);
 		content = Utils.deepReplace(/\n\n/g, "\n", content);
 
+		// Initialize the solr product object
 		let doc = new Product();
 		doc.setHash(product.urlHash).
 			setTitle(product.title).
@@ -103,13 +105,32 @@ IndexController.updateIndex = function(context) {
 			setPriceChange(0).
 			setPriceChangePercent(0);
 
-		solrServer.addDocuments([doc])
-			.then( (solrReturn) => {
-				context.indexReturn = solrReturn.data;
+		// Get original price
+		solrServer.getByIds([product.urlHash])
+		// Check price change
+		.then( (solrReturn) => {
+			const oldPrice = solrReturn.data.response.docs[0].price;
+			if (product.price != oldPrice) {
+				// Price changed, need to update index
+				doc.setPriceChange(product.price - oldPrice);
+				doc.setPriceChangePercent(doc.price_change/(oldPrice==0?0.1:oldPrice));
+
+				solrServer.addDocuments([doc])
+				.then( (solrReturn) => {
+					context.indexReturn = solrReturn.data;
+					resolve(context);
+				})
+				.catch( (error) => {
+					reject({error: error.message});
+				});
+			} else {
+				// No price change, skip update
 				resolve(context);
-			})
-			.catch( (error) => {
-				reject({error: error.message});
-			});
+			}
+		})
+		.catch( (error) => {
+			reject({error: error.message})
+		});
+
 	});
 }

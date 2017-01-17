@@ -14,7 +14,8 @@ SolrManager.getServer = function(logicalName) {
 function Solr(logicalName) {
 	var config = loadConfig('solr');
 
-	this.CMD_UPDATE = "update";	
+	this.CMD_UPDATE = "update";
+	this.CMD_QUERY = "select";
 	this.masterConfig = config[logicalName].master;
 	this.slaveConfig = config[logicalName].slave;	
 }
@@ -35,6 +36,44 @@ Solr.prototype.addDocuments = function(docList) {
 
 		const curl = load("common.Curl");
 		curl.post(updateUrl, sendData, 30000, 'application/json')
+			.then( (httpReturn) => {
+				resolve({
+					headers: httpReturn.headers,
+					data: JSON.parse(httpReturn.data)
+				});
+			})
+			.catch( (error) => {
+				reject( {message: error.message} );
+			});
+	});
+}
+
+Solr.prototype.getByIds = function(idList) {
+	return new Promise( (resolve, reject) => {
+		const url = require('url');
+
+		// Construct protocol hostname pathname of url
+		let solrUrlObject = url.parse(this.getMaster() + this.CMD_QUERY);
+
+		// Construct query part of url
+		let urlQueryObject = {
+			wt: 'json'
+		}
+
+		let searchTerm = 'hash:(';
+		let prefix = '';
+		for (let i in idList) {
+			searchTerm += prefix + idList[i];
+			prefix = ' OR ';
+		}
+		searchTerm += ')'
+		urlQueryObject.q = searchTerm;
+		solrUrlObject.query = urlQueryObject;
+
+		// Send request to solr server
+		solrUrl = url.format(solrUrlObject);
+		const curl = load("common.Curl");
+		curl.get(solrUrl, 10000)
 			.then( (httpReturn) => {
 				resolve({
 					headers: httpReturn.headers,
