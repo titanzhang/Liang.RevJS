@@ -1,4 +1,5 @@
 require('./base.js');
+// global.Promise = require('promise');
 
 var express = require('express');
 var app = express();

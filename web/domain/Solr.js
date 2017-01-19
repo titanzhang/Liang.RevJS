@@ -16,6 +16,9 @@ function Solr(logicalName) {
 
 	this.CMD_UPDATE = "update";
 	this.CMD_QUERY = "select";
+	this.TIMEOUT_QUERY = 10000; // 10 seconds
+	this.TIMEOUT_UPDATE = 30000; // 30 sencods
+
 	this.masterConfig = config[logicalName].master;
 	this.slaveConfig = config[logicalName].slave;	
 }
@@ -29,108 +32,63 @@ Solr.prototype.getSlave = function() {
 	return this.slaveConfig[index];
 }
 
-Solr.prototype.addDocuments = function(docList) {
+Solr.prototype.update = function(docList) {
 	return new Promise( (resolve, reject) => {
 		var updateUrl = this.getMaster() + this.CMD_UPDATE;
 		var sendData = JSON.stringify(docList);
 
 		const curl = load("common.Curl");
-		curl.post(updateUrl, sendData, 30000, 'application/json')
+		curl.post(updateUrl, sendData, this.TIMEOUT_UPDATE, 'application/json')
 			.then( (httpReturn) => {
-				resolve({
-					headers: httpReturn.headers,
-					data: JSON.parse(httpReturn.data)
-				});
+				let jsonReturn = JSON.parse(httpReturn.data);
+				if (jsonReturn.error !== undefined) {
+					reject({message: 'Solr.update: ' + jsonReturn.error.msg});
+				} else {
+					resolve({
+						headers: httpReturn.headers,
+						data: jsonReturn
+					});
+				}
 			})
 			.catch( (error) => {
-				reject( {message: error.message} );
+				reject( {message: 'Solr.update: ' + error.message} );
 			});
 	});
 }
 
-Solr.prototype.getByIds = function(idList) {
-	return new Promise( (resolve, reject) => {
-		const url = require('url');
+Solr.prototype.query = function(searchTermObject) {
+	const url = require('url');
 
-		// Construct protocol hostname pathname of url
-		let solrUrlObject = url.parse(this.getMaster() + this.CMD_QUERY);
+	// Construct protocol hostname pathname of url
+	let solrUrlObject = url.parse(this.getMaster() + this.CMD_QUERY);
 
-		// Construct query part of url
-		let urlQueryObject = {
-			wt: 'json'
+	// Default return format is JSON
+	if (searchTermObject.wt === undefined) {
+		searchTermObject.wt = 'json';
+	}
+
+	// Construct the complete solr request URL
+	solrUrlObject.query = searchTermObject;
+	const solrUrl = require('url').format(solrUrlObject);
+
+	// Send request to solr server
+	let taskChain = load("common.Curl").get(solrUrl, this.TIMEOUT_QUERY);
+	taskChain = taskChain.then( (httpReturn) => {
+		let jsonReturn = JSON.parse(httpReturn.data);
+		if (jsonReturn.error !== undefined) {
+			return Promise.reject({message: 'Solr.query.solr: ' + jsonReturn.error.msg});
+		} else {
+			return {
+				headers: httpReturn.headers,
+				data: jsonReturn
+			};
 		}
-
-		let searchTerm = 'hash:(';
-		let prefix = '';
-		for (let i in idList) {
-			searchTerm += prefix + idList[i];
-			prefix = ' OR ';
-		}
-		searchTerm += ')'
-		urlQueryObject.q = searchTerm;
-		solrUrlObject.query = urlQueryObject;
-
-		// Send request to solr server
-		solrUrl = url.format(solrUrlObject);
-		const curl = load("common.Curl");
-		curl.get(solrUrl, 10000)
-			.then( (httpReturn) => {
-				resolve({
-					headers: httpReturn.headers,
-					data: JSON.parse(httpReturn.data)
-				});
-			})
-			.catch( (error) => {
-				reject( {message: error.message} );
-			});
 	});
-}
+	taskChain = taskChain.catch( (error) => {
+		return Promise.reject( {message: 'Solr.query: ' + error.message} );
+	});
 
-function Product() {
-	this.hash = 0;
-	this.title = '';
-	this.content = '';
-	this.url = '';
-	this.price = 0.0;
-	this.price_change = 0.0;
-	this.price_change_percent = 0.0;
+	return taskChain;
 }
-
-Product.prototype.setHash = function(hash) {
-	this.hash = hash;
-	return this;
-}
-
-Product.prototype.setTitle = function(title) {
-	this.title = title;
-	return this;
-}
-
-Product.prototype.setContent = function(content) {
-	this.content = content;
-	return this;
-}
-
-Product.prototype.setUrl = function(url) {
-	this.url = url;
-	return this;
-}
-
-Product.prototype.setPrice = function(price) {
-	this.price = price;
-	return this;
-}
-
-Product.prototype.setPriceChange = function(priceChange) {
-	this.price_change = priceChange;
-	return this;
-}
-
-Product.prototype.setPriceChangePercent = function(priceChangePercent) {
-	this.price_change_percent = priceChangePercent;
-	return this;
-}
-
 
 exports.manager = SolrManager;
-exports.Product = Product;
