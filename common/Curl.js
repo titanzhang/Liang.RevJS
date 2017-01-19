@@ -18,7 +18,7 @@ Curl.get = function(urlString, timeout) {
 				response.resume();
 				return reject({
 					statusCode: statusCode,
-					message: 'Request failed, status code: ${statusCode}'
+					message: 'Request failed, status code: ' + statusCode
 				});
 			}
 
@@ -60,7 +60,7 @@ Curl.post = function(urlString, postData, timeout, contentType) {
 				response.resume();
 				return reject({
 					statusCode: statusCode,
-					message: 'Request failed, status code: ${statusCode}'
+					message: 'Request failed, status code: ' + statusCode
 				});
 			}
 
