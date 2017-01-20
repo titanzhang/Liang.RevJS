@@ -79,7 +79,7 @@ IndexController.extractPage = function(context) {
 		product.urlHash = require('crypto').createHash('md5').update(url).digest('hex');
 
 		// Get title
-		var regexp = /<meta itemprop="caption" content="([^"]+)"[^>]*>/;
+		var regexp = /<meta name="og:title" content="([^"]+)"[^>]*>/;
 		var regResult = regexp.exec(pageContent);
 		if (regResult !== null) {
 			product.title = regResult[1];
