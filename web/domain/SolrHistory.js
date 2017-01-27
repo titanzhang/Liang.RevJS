@@ -4,7 +4,7 @@ var HistoryDAO = {
 
 HistoryDAO.add = function(history) {
 	try {
-		let server = load('web.domain.Solr').manager.getServer(this.serverName);
+		const server = load('web.domain.Solr').manager.getServer(this.serverName);
 
 		let taskChain = server.update([history]);
 		taskChain = taskChain.then( (solrReturn) => {
@@ -18,6 +18,25 @@ HistoryDAO.add = function(history) {
 		return taskChain;
 	} catch(e) {
 		return Promise.reject({ message: 'HistoryDAO.add(exception): ' + error.message });
+	}
+}
+
+HistoryDAO.getListByHash = function(hash) {
+	try {
+		const server = load('web.domain.Solr').manager.getServer(this.serverName);
+		const searchTerm = 'hash:' + hash;
+
+		return server.query({q: searchTerm})
+			.then( (solrReturn) => {
+				return solrReturn.data.response.docs;
+			})
+			.catch( (error) => {
+				return Promise.reject({message: 'HistoryDAO.getListByHash: ' + error.message})
+			})
+
+	} catch(e) {
+		console.log(e);
+		return Promise.reject({ message: 'HistoryDAO.getListByHash(exception): ' + error.message });
 	}
 }
 

@@ -1,9 +1,9 @@
 require('./base.js');
-// global.Promise = require('promise');
 
 var express = require('express');
 var app = express();
 var path = require('path');
+var bodyParser = require('body-parser');
 
 app.set('x-powered-by', false)
 
@@ -14,12 +14,25 @@ app.set('view engine', 'ejs');
 // Static content settings
 app.use(express.static(path.join(__dirname, 'static')));
 
+// Parse application/json
+app.use(bodyParser.json());
+
 // Dynamic requests
 app.get('/hello/:user', function(req, res) {
 	res.render('hello', {name: req.params.user});
 });
 
-app.get('/product/index/json/:url', load('web.controller.IndexController'));
+// Track/Update a product
+app.get('/product/index/:url', load('web.controller.IndexController'));
+
+// Update product information
+app.post('/product/update', load('web.controller.UpdateController'));
+
+// View product information
+app.get('/product/get/:url', load('web.controller.ProductController'));
+
+// Get product list
+app.get('/product/list/:startRow/:numRows', load('web.controller.ListController'));
 
 // Handle 404
 app.get('*', function(req, res) {

@@ -24,7 +24,7 @@ ProductDAO.add = function(product) {
 
 ProductDAO.get = function(hash) {
 	try {
-		let taskChain = this.getList([hash]);
+		let taskChain = this.getListByHash([hash]);
 		taskChain = taskChain.then( (products) => {
 			return products[0];
 		});
@@ -38,7 +38,7 @@ ProductDAO.get = function(hash) {
 	}
 }
 
-ProductDAO.getList = function(hashList) {
+ProductDAO.getListByHash = function(hashList) {
 	try {
 		let server = load('web.domain.Solr').manager.getServer(this.serverName);
 
@@ -56,16 +56,38 @@ ProductDAO.getList = function(hashList) {
 		});
 
 		taskChain = taskChain.catch( (error) => {
-			return Promise.reject({message: 'ProductDAO.getList: ' + error.message})
+			return Promise.reject({message: 'ProductDAO.getListByHash: ' + error.message});
 		});
 
 		return taskChain;
 	} catch(e) {
 		console.log(e);
-		return Promise.reject({message: 'ProductDAO.getList(exception): ' + e.message});
+		return Promise.reject({message: 'ProductDAO.getListByHash(exception): ' + e.message});
 	}
 }
 
+ProductDAO.getList = function(start, numRows) {
+	try {
+		const server = load('web.domain.Solr').manager.getServer(this.serverName);
+		const queryObj = {
+			q: 'hash:*',
+			fl: 'hash,url,price',
+			rows: numRows,
+			start: start
+		};
+
+		return server.query(queryObj)
+		.then( (solrReturn) => {
+			return solrReturn.data.response.docs;
+		})
+		.catch( (error) => {
+			return Promise.reject({message: 'ProductDAO.getList: ' + error.message});
+		});
+	} catch(e) {
+		console.log(e);
+		return Promise.reject({message: 'ProductDAO.getList(exception): ' + e.message});
+	}
+}
 
 function ProductDO() {
 	this.hash = 0;

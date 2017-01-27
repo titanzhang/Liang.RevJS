@@ -6,9 +6,9 @@ global.load = function(moduleName) {
 }
 
 global.loadConfig = function(configName) {
-	var jsName = baseDir + 'config/' + configName + '.js';
+	var jsName = baseDir + 'config/batch/' + configName + '.js';
 	if (!require('fs').existsSync(jsName)) {
-		jsName = baseDir + 'web/config/' + configName + '.js';
+		jsName = baseDir + 'batch/config/' + configName + '.js';
 	}
 	return require(jsName);
 }

@@ -4,6 +4,7 @@
   "description": "NodeJS based website to track the price changes on revzilla.com",
   "main": "web/server.js",
   "dependencies": {
+    "body-parser": "^1.16.0",
     "ejs": "^2.5.5",
     "express": "^4.14.0",
     "minimist": "^1.2.0",
