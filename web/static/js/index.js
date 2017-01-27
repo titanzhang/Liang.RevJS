@@ -1,9 +1,9 @@
 
-revjs.IndexFormModule = {
-	configName: 'indexModule'
+revjs.FindProductModule = {
+	configName: 'productModule'
 };
 
-revjs.IndexFormModule.init = function() {
+revjs.FindProductModule.init = function() {
 	var config = revjs.getConfig(this.configName);
 	if (config === undefined) {
 		return false;
@@ -12,19 +12,22 @@ revjs.IndexFormModule.init = function() {
 	var urlInputObj = $('#' + config.urlInputID);
 	var resultObj = $('#' + config.resultID);
 	var messageObj = $('#' + config.messageID);
+	var titleObj = $('#' + config.titleID);
 	$('#' + config.indexButtonID).click(
 		this.clickWrapper(
 			urlInputObj,
 			config.serviceUrl,
 			resultObj,
+			titleObj,
 			messageObj,
-			this.httpWrapper(resultObj, messageObj)
+			this.httpWrapper(resultObj, titleObj, messageObj)
 		)
 	);
 }
 
-revjs.IndexFormModule.clickWrapper = function(urlInputObj, serviceUrl, resultObj, messageObj, httpCallback) {
+revjs.FindProductModule.clickWrapper = function(urlInputObj, serviceUrl, resultObj, titleObj, messageObj, httpCallback) {
 	var clickCallback = function() {
+		titleObj.text('Find product');
 		messageObj.text('Processing ... ');
 		resultObj.modal('show');
 
@@ -37,20 +40,21 @@ revjs.IndexFormModule.clickWrapper = function(urlInputObj, serviceUrl, resultObj
 	return clickCallback;
 }
 
-revjs.IndexFormModule.httpWrapper = function(resultObject, messageObject) {
+revjs.FindProductModule.httpWrapper = function(resultObject, titleObj, messageObject) {
 	var httpCallback = function(data, status) {
 		if (status === 'success' && data.status === true) {
-			messageObject.text('Success! Product is being tracked');
+			titleObj.html('<a href="'+data.product.url+'">'+data.product.title+'</a>');
+			messageObject.text(data.product.price + '('+ (data.product.price_change_percent*100) +')');
 			resultObject.modal('show');
 		} else {
-			messageObject.text('Fail to track product');
+			messageObject.text('Fail to find product');
 			resultObject.modal('show');
 		}
-		setTimeout(function() {
-			resultObject.modal('hide');
-		}, 3000);
+		// setTimeout(function() {
+		// 	resultObject.modal('hide');
+		// }, 3000);
 	};
 	return httpCallback;
 }
 
-revjs.IndexFormModule.init();
+revjs.FindProductModule.init();

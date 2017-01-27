@@ -1,5 +1,5 @@
 module.exports = function() {
-	const numRows = 5;
+	const numRows = 10;
 	const startIndex = 0;
 	
 	const job = new JobUpdatePrice();
@@ -92,6 +92,7 @@ JobUpdatePrice.prototype.updateProduct = function(product) {
 		const apiUrl = loadConfig('api').productIndexAPI + require('querystring').escape(product.url);
 		return load('common.Curl').get(apiUrl, 10000)
 		.then( (httpReturn) => {
+			console.log('Process ' + product.url);
 			const apiReturn = JSON.parse(httpReturn.data);
 			return {status: apiReturn.status};
 		})
