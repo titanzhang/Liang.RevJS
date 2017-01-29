@@ -2,8 +2,8 @@
 
 # Global variables
 BASEDIR=$(dirname $0)
-PIDFILE="scheduler.pid"
-CMD="node batch/scheduler.js"
+PIDFILE="batch.pid"
+CMD="node batch/batch.js"
 
 # change current dirctory
 cd $BASEDIR
@@ -26,7 +26,7 @@ start() {
 		echo "Process already running:$SERVER_PID"
 	else
 		echo "Starting ..."
-		$CMD >> batch.log &
+		$CMD >> logs/batch.log &
 		SERVER_PID=$!
 		let "SERVER_PID = $SERVER_PID + 0"
 		sleep 1

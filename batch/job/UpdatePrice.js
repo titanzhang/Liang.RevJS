@@ -49,7 +49,7 @@ JobUpdatePrice.prototype.getProducts = function(startIndex, numFetch) {
 		.then( (httpReturn) => {
 			const apiReturn = JSON.parse(httpReturn.data);
 			if (!apiReturn.status) {
-				return Promise.reject(new Error('JobUpdatePrice.getProducts: call list api failed'));
+				return Promise.reject({message: 'JobUpdatePrice.getProducts: call list api failed'});
 			}
 			return apiReturn.products;
 		})
@@ -92,7 +92,7 @@ JobUpdatePrice.prototype.updateProduct = function(product) {
 		const apiUrl = loadConfig('api').productIndexAPI + require('querystring').escape(product.url);
 		return load('common.Curl').get(apiUrl, 10000)
 		.then( (httpReturn) => {
-			console.log('Process ' + product.url);
+			// console.log('Process ' + product.url);
 			const apiReturn = JSON.parse(httpReturn.data);
 			return {status: apiReturn.status};
 		})
