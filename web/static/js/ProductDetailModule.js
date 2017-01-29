@@ -86,7 +86,7 @@ revjs.ProductDetailModule.httpWrapper = function() {
 	var callback = function(data, status) {
 		if (status === 'success' && data.status === true) {
 			revjs.trigger('ProductDetail.setTitle', '<a href="'+data.product.url+'">'+data.product.title+'</a>');
-			revjs.trigger('ProductDetail.setDetail', data.product.price + '('+ (data.product.price_change_percent*100) +')');
+			revjs.trigger('ProductDetail.setDetail', data.product.price + '('+ (data.product.price_change_percent*100).toFixed(2) +'%)');
 			revjs.trigger('ProductDetail.setHistory', data.history);
 			revjs.trigger('ProductDetail.show');
 		} else {
