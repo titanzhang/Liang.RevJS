@@ -40,7 +40,7 @@
       
     <div class="jumbotron">
         <div class="container">
-        <h2>Find Product</h2>
+        <h2>View Product</h2>
         <!--form class="form-inline" id="formIndex"-->
           <div class="row">
             <div class="col-md-8">
@@ -48,13 +48,20 @@
                 <input type="url" class="form-control" id="inpUrl" placeholder="http://somesite.com/page">
             </div>
             <div class="col-md-4">
-                <button type="button" class="btn btn-primary" id="btnFind">Find</button>
+                <button type="button" class="btn btn-primary" id="btnView">View</button>
             </div>
           </div>
         <!--/form-->
+          <script>
+              var productConfig = {
+                  urlInputID: "inpUrl",
+                  viewButtonID: "btnView"
+              };
+              revjs.addConfig('productModule', productConfig);
+          </script>
         </div>
 
-        <!-- Dialog for track result -->
+        <!-- Dialog for product result -->
         <div class="modal fade" tabindex="-1" role="dialog" id="productPageResult">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -63,14 +70,26 @@
                 <h4 class="modal-title" id="productTitle">Find Product</h4>
               </div>
               <div class="modal-body">
-                <p id="productMessage">One fine body&hellip;</p>
+                <p id="productDetail">Product detail</p>
+                <div class="container" id="productPriceHistory"></div>
               </div>
               <!--div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
               </div-->
             </div><!-- /.modal-content -->
           </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->  
+          <script>
+            var productDetailConfig = {
+              serviceUrl: "/product/get/",
+              resultID: "productPageResult",
+              titleID: "productTitle",
+              detailID: "productDetail",
+              historyID: "productPriceHistory",
+              historyTemplate: '<div class="row"><div class="col-md-4">{:price}</div><div class="col-md-4">{:date}</div></div>'
+            };
+            revjs.addConfig('productDetailModule', productDetailConfig);
+          </script>
+        </div><!-- /.modal -->
 
     </div>
 
@@ -81,20 +100,10 @@
         </div>
     </footer>
 
-    <script>
-        let productConfig = {
-            urlInputID: "inpUrl",
-            indexButtonID: "btnFind",
-            serviceUrl: "/product/get/",
-            resultID: "productPageResult",
-            titleID: "productTitle",
-            messageID: "productMessage"
-        };
-        revjs.addConfig('productModule', productConfig);
-    </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="/js/ProductDetailModule.js"></script>
     <script src="/js/index.js"></script>
   </body>
 </html>
