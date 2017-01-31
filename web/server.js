@@ -34,6 +34,9 @@ app.get('/product/get/:url', load('web.controller.ProductController'));
 // Get product list
 app.get('/product/list/:startRow/:numRows', load('web.controller.ListController'));
 
+// Search
+app.get('/product/search', load('web.controller.SearchController'))
+
 // Handle 404
 app.get('*', function(req, res) {
 	res.status(404);

@@ -66,6 +66,30 @@ ProductDAO.getListByHash = function(hashList) {
 	}
 }
 
+ProductDAO.getListByKeywordPriceP = function(keyword, priceP, start, numRows) {
+	try {
+		const searchTerm = 'title:'+keyword+' AND '
+			+ 'price_change_percent:' + priceP;
+		const queryObj = {
+			q: searchTerm,
+			start: start,
+			rows: numRows
+		};
+
+		const server = load('web.domain.Solr').manager.getServer(this.serverName);
+		return server.query(queryObj)
+		.then( (solrReturn) => {
+			return solrReturn.data.response.docs;
+		})
+		.catch( (error) => {
+			return Promise.reject(error);
+		});
+	} catch(e) {
+		console.log(e);
+		return Promise.reject({message: 'ProductDAO.getListByKeywordPriceP(exception): ' + e.message});
+	}
+}
+
 ProductDAO.getList = function(start, numRows) {
 	try {
 		const server = load('web.domain.Solr').manager.getServer(this.serverName);
