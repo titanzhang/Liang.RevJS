@@ -5,6 +5,7 @@
   "main": "web/server.js",
   "dependencies": {
     "body-parser": "^1.16.0",
+    "cheerio": "^0.22.0",
     "ejs": "^2.5.5",
     "express": "^4.14.0",
     "minimist": "^1.2.0",

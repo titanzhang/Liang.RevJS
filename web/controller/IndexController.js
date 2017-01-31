@@ -74,31 +74,40 @@ IndexController.extractPage = function(context) {
 		const pageContent = context.pageContent;
 
 		var product = {};
+		const parser = require('cheerio');
+		const selector = parser.load(pageContent);
 
 		// Digest of url as ID
 		product.urlHash = require('crypto').createHash('md5').update(url).digest('hex');
 
 		// Get title
-		var regexp = /<meta name="og:title" content="([^"]+)"[^>]*>/;
-		var regResult = regexp.exec(pageContent);
-		if (regResult !== null) {
-			product.title = regResult[1];
-		} else {
-			regexp = /<meta name="twitter:title" content="([^"]+)"[^>]*>/;
-			regResult = regexp.exec(pageContent);
-			if (regResult === null) {
-				return Promise.reject({ message: 'Title not found in page'});
-			}
-			product.title = regResult[1];
+		let title = selector("meta[property='og:title']").attr('content');
+		if (title === undefined) {
+			title = selector("meta[name='twitter:title']").attr('content');
 		}
+		if (title === undefined) {
+			return Promise.reject({ message: 'Title not found in page'});
+		}
+		product.title = title;
 
 		// Get price
-		regexp = /<meta itemprop="price" content="([^"]+)"[^>]*>/;
-		regResult = regexp.exec(pageContent);
-		if (regResult === null) {
+		let price = selector("meta[itemprop='price']").attr('content');
+		if (price === undefined) {
 			return Promise.reject({message: 'Price not found in page'});
 		}
-		product.price = parseFloat(regResult[1].replace('$', ''));
+		product.price = parseFloat(price.replace('$', ''));
+
+		// Get Description
+		let description = selector('#product_description_content').text();
+		if (description === undefined) {
+			return Promise.reject({message: 'Description not found in page'});
+		}
+		const Utils = load('common.Utils');
+		description = Utils.deepReplace(/  /g, " ", description);
+		description = Utils.deepReplace(/\n /g, "\n", description);
+		description = Utils.deepReplace(/ \n/g, "\n", description);
+		description = Utils.deepReplace(/\n\n/g, "\n", description);
+		product.description = description;
 
 		return product;
 	} catch(e) {
@@ -110,25 +119,16 @@ IndexController.extractPage = function(context) {
 IndexController.updateIndex = function(context) {
 	try {
 		const url = context.url;
-		const pageContent = context.pageContent;
 		const product = context.product;
 
 		const ProductDO = load('web.domain.SolrProduct').DO;
 		const HistoryDO = load('web.domain.SolrHistory').DO;
 
-		// Simplify content
-		const Utils = load('common.Utils');
-		let content = Utils.removeHTMLTags(pageContent);
-		content = Utils.deepReplace(/  /g, " ", content);
-		content = Utils.deepReplace(/\n /g, "\n", content);
-		content = Utils.deepReplace(/ \n/g, "\n", content);
-		content = Utils.deepReplace(/\n\n/g, "\n", content);
-
 		// Initialize the solr product object
 		let productDO = new ProductDO();
 		productDO.setHash(product.urlHash).
 			setTitle(product.title).
-			setContent(content).
+			setContent(product.description).
 			setUrl(url).
 			setPrice(product.price).
 			setPriceChange(0).
