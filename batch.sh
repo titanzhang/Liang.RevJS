@@ -3,7 +3,7 @@
 # Global variables
 BASEDIR=$(dirname $0)
 PIDFILE="batch.pid"
-CMD="node batch/batch.js"
+CMD="nohup node batch/batch.js"
 
 # change current dirctory
 cd $BASEDIR

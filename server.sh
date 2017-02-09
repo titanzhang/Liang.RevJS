@@ -3,7 +3,7 @@
 # Global variables
 BASEDIR=$(dirname $0)
 PIDFILE="server.pid"
-CMD="node web/server.js"
+CMD="nohup node web/server.js"
 
 # change current dirctory
 cd $BASEDIR
