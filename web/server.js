@@ -17,16 +17,11 @@ app.use(express.static(path.join(__dirname, 'static')));
 // Parse application/json
 app.use(bodyParser.json());
 
-// Dynamic requests
-app.get('/hello/:user', function(req, res) {
-	res.render('hello', {name: req.params.user});
-});
-
 // Track/Update a product
 app.get('/product/index/:url', load('web.controller.IndexController'));
 
 // Update product information
-app.post('/product/update', load('web.controller.UpdateController'));
+// app.post('/product/update', load('web.controller.UpdateController'));
 
 // View product information
 app.get('/product/get/:url', load('web.controller.ProductController'));
