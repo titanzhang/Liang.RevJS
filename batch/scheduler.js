@@ -11,6 +11,7 @@ JobScheduler.prototype.register = function(month, date, hour, minute, name, job)
 		checkTime: this.onTime(month, date, hour, minute),
 		job: job
 	});
+	console.log("JobScheduler: register " + name);
 }
 
 JobScheduler.prototype.onTime = function(month, date, hour, minute) {
