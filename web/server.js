@@ -4,12 +4,18 @@ var express = require('express');
 var app = express();
 var path = require('path');
 var bodyParser = require('body-parser');
+const hostname = require('os').hostname();
 
 app.set('x-powered-by', false)
 
 // Template settings
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+app.use( (request, response, next) => {
+	response.header('lzh', hostname);
+	next();
+});
 
 // Static content settings
 app.use(express.static(path.join(__dirname, 'static')));
