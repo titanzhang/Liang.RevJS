@@ -5,7 +5,8 @@ module.exports = function() {
 	const job = new JobUpdatePrice();
 	job.processProducts(startIndex, numRows)
 	.then( (totalNumber) => {
-		console.log(totalNumber + ' products updated');
+		load('common.Utils').log('UpdatePrice', totalNumber + ' products updated')
+		// console.log(totalNumber + ' products updated');
 	})
 	.catch( (error) => {
 		console.log(error);
@@ -51,6 +52,7 @@ JobUpdatePrice.prototype.getProducts = function(startIndex, numFetch) {
 			if (!apiReturn.status) {
 				return Promise.reject({message: 'JobUpdatePrice.getProducts: call list api failed'});
 			}
+			load('common.Utils').log('UpdatePrice', 'getProducts (' + startIndex + ', ' + numFetch + ')')
 			return apiReturn.products;
 		})
 		.catch( (error) => {
@@ -76,6 +78,7 @@ JobUpdatePrice.prototype.updateProducts = function(productList) {
 
 		return Promise.all(jobList)
 		.then( (results) => {
+			load('common.Utils').log('UpdatePrice', 'updateProducts ' + productList.length);
 			return productList.length;
 		})
 		.catch( (error) => {

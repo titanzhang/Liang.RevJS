@@ -27,8 +27,14 @@ Utils.deepReplace = function(pattern, rep, text) {
 	return string;
 }
 
+Utils.log = function(module, message) {
+	const currentTime = new Date();
+	console.log('[' + currentTime.toLocaleString('en-US', {hour12:false}) + '] ' + module + ': ' + message);
+}
+
 // exports = Utils;
 exports.parseXML = Utils.parseXML;
 exports.removeHTMLTags = Utils.removeHTMLTags;
 exports.deepReplace = Utils.deepReplace;
+exports.log = Utils.log;
 

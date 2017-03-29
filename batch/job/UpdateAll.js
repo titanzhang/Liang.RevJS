@@ -4,7 +4,8 @@ module.exports = function() {
 	.then( (results) => {
 		const successList = results.success;
 		const failList = results.fail;
-		console.log('Success:' + successList.length + ' Fail:' + failList.length);
+		load('common.Utils').log('UpdateAll', 'Success=' + successList.length + ' Fail=' + failList.length)
+		// console.log('Success:' + successList.length + ' Fail:' + failList.length);
 	})
 	.catch( (error) => {
 		console.log(error);
@@ -34,6 +35,7 @@ JobUpdateAll.prototype.getSiteMap = function() {
 			}
 			productFiles.push(url);
 		}
+		load('common.Utils').log('UpdateAll', 'getSiteMap done');
 		return productFiles;
 	})
 	.catch( (error) => {
@@ -74,6 +76,7 @@ JobUpdateAll.prototype.getProductPageList = function(urls) {
 			const urlList = urlLists[i];
 			list = list.concat(urlList);
 		}
+		load('common.Utils').log('UpdateAll', 'getProductPageList done');
 		return list;
 	});
 }
@@ -112,6 +115,7 @@ JobUpdateAll.prototype.addProducts = function(pageUrls) {
 			result.success = result.success.concat(apiReturn.success);
 			result.fail = result.fail.concat(apiReturn.fail);
 		}
+		load('common.Utils').log('UpdateAll', 'addProducts done');
 		return result;
 	});
 }

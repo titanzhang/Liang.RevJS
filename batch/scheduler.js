@@ -11,7 +11,8 @@ JobScheduler.prototype.register = function(month, date, hour, minute, name, job)
 		checkTime: this.onTime(month, date, hour, minute),
 		job: job
 	});
-	console.log("JobScheduler: register " + name);
+	load('common.Utils').log('JobScheduler', 'register ' + name);
+	// console.log("JobScheduler: register " + name);
 }
 
 JobScheduler.prototype.onTime = function(month, date, hour, minute) {
@@ -56,7 +57,21 @@ JobScheduler.prototype.execute = function() {
 		const jobSetting = this.jobList[i];
 		if (jobSetting.checkTime(currentTime)) {
 			setTimeout(jobSetting.job, 0);
-			console.log('[' + currentTime.toLocaleString('en-US', {hour12:false}) + ']' + ' Start job:' + jobSetting.name);
+			load('common.Utils').log('Start job', jobSetting.name);
+			// console.log('[' + currentTime.toLocaleString('en-US', {hour12:false}) + ']' + ' Start job:' + jobSetting.name);
+		}
+	}
+}
+
+JobScheduler.prototype.execNow = function(jobName) {
+	const currentTime = new Date();
+	for (let i in this.jobList) {
+		const jobSetting = this.jobList[i];
+		if (jobSetting.name === jobName) {
+			setTimeout(jobSetting.job, 0);
+			load('common.Utils').log('execNow', jobSetting.name);
+			// console.log('[' + currentTime.toLocaleString('en-US', {hour12:false}) + ']' + ' execNow: ' + jobSetting.name);
+			break;
 		}
 	}
 }
