@@ -29,6 +29,23 @@ revjs.ProductDetailModule.init = function() {
 	revjs.on('ProductDetail.setDetail', this.onSetDetail(detailObj));
 	revjs.on('ProductDetail.setHistory', this.onSetHistory(historyObj, historyTemplate));
 	revjs.on('ProductDetail.getContent', this.onGetContent(config.serviceUrl, this.httpWrapper()));
+
+	this.registerLinks();
+}
+
+revjs.ProductDetailModule.registerLinks = function() {
+	$("[revlink='product']").click(this.onClickProduct());
+}
+
+revjs.ProductDetailModule.onClickProduct = function() {
+	var callback = function(event) {
+		revjs.trigger('ProductDetail.setTitle', 'Find product');
+		revjs.trigger('ProductDetail.setDetail', 'Processing ...');
+		revjs.trigger('ProductDetail.show');
+		revjs.trigger('ProductDetail.getContent', $(this).attr('reval'));
+		return false;
+	};
+	return callback;
 }
 
 revjs.ProductDetailModule.onShowHide = function(titleObj, bShow) {
@@ -85,7 +102,7 @@ revjs.ProductDetailModule.onGetContent = function(serviceUrl, contentCallback) {
 revjs.ProductDetailModule.httpWrapper = function() {
 	var callback = function(data, status) {
 		if (status === 'success' && data.status === true) {
-			revjs.trigger('ProductDetail.setTitle', '<a href="'+data.product.url+'">'+data.product.title+'</a>');
+			revjs.trigger('ProductDetail.setTitle', '<a href="'+data.product.url+'" target="_blank">'+data.product.title+'</a>');
 			revjs.trigger('ProductDetail.setDetail', data.product.price + '('+ (data.product.price_change_percent*100).toFixed(2) +'%)');
 			revjs.trigger('ProductDetail.setHistory', data.history);
 			revjs.trigger('ProductDetail.show');

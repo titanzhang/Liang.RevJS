@@ -72,6 +72,7 @@ ProductDAO.getListByKeywordPriceP = function(keyword, priceP, start, numRows) {
 			+ 'price_change_percent:' + priceP;
 		const queryObj = {
 			q: searchTerm,
+			sort: 'price_change_percent asc',
 			start: start,
 			rows: numRows
 		};

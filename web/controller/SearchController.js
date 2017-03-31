@@ -1,16 +1,11 @@
 module.exports = function(request, response) {
-	const keyword = request.query.q;
-	const priceChangeRange = request.query.pc;
-	const start = request.start;
-	const numRows = request.rows;
+	// Query format:
+	// ?q=keyword&ppl=priceLow&pph=priceHigh&start=rowStart&rows=numRows
 
-	const controller = new SearchController(keyword, priceChangeRange, start, numRows);
+	const controller = new SearchController(request);
 	controller.search()
 	.then( (products) => {
-		response.send({
-			status: true,
-			products: products
-		});
+		response.render('search', {query: controller.query, products: products, pagination: controller.buildPagination()});
 	})
 	.catch( (error) => {
 		response.send({
@@ -18,34 +13,44 @@ module.exports = function(request, response) {
 			error: error.message
 		})
 	})
+};
+
+function SearchController(request) {
+	this.baseUrl = '/product/search';
+	this.query = this.normalizeQuery(request);
+
+	this.keyword = this.query.q;
+	this.priceChangePercent = "[" + (this.query.ppl === '*')?'*':(this.query.ppl/100) + ' TO ' + (this.query.pph === '*')?'*':(this.query.pph/100) + "]";
+	this.startIndex = Number(this.query.start);
+	this.numRows = Number(this.query.rows);
 }
 
-function SearchController(keyword, priceChangeRange, start, numRows) {
-	if (keyword === undefined) {
-		this.keyword = '*';
-	} else {
-		this.keyword = keyword;
-	}
+SearchController.prototype.normalizeQuery = function(request) {
+	let query = {};
+	query.q = (request.query.q === undefined || request.query.q === "")? "*": request.query.q;
+	query.ppl = (request.query.ppl === undefined || request.query.ppl === "")? "*": request.query.ppl;
+	query.pph = (request.query.pph === undefined || request.query.pph === "")? "*": request.query.pph;
+	query.start = (request.query.start === undefined || request.query.start === "")? '0': request.query.start;
+	query.rows = (request.query.rows === undefined || request.query.rows === "")? '20': request.query.rows;
+	return query;
+};
 
-	this.priceChangePercent = '[* TO *]';
-	if (priceChangeRange !== undefined) {
-		const regexp = /(\[|{)(.*),(.*)(\]|})/;
-		const matches = regexp.exec(priceChangeRange);
-		if (matches !== null) {
-			this.priceChangePercent = matches[1] + matches[2] + ' TO ' + matches[3] + matches[4];
-		}
-	}
+SearchController.prototype.buildPagination = function() {
+	const constrains = '?q=' + this.query.q + '&ppl=' + this.query.ppl + '&pph=' + this.query.pph;
+	const prevIndex = this.startIndex - this.numRows;
+	const nextIndex = this.startIndex + this.numRows;
+	const prev = (prevIndex >= 0)? '&start=' + prevIndex: '';
+	const next = (this.numRows == this.numRowsReturn)? '&start=' + nextIndex: '';
 
-	this.startIndex = 0;
-	if (start !== undefined) {
-		this.startIndex = Number(start);
+	let pagination = {};
+	if (prev !== '') {
+		pagination.previous = this.baseUrl + constrains + prev + '&rows=' + this.query.rows;
 	}
-
-	this.numRows = 10;
-	if (numRows !== undefined) {
-		this.numRows = Number(numRows);
+	if (next !== '') {
+		pagination.next = this.baseUrl + constrains + next + '&rows=' + this.query.rows;
 	}
-}
+	return pagination;
+};
 
 SearchController.prototype.search = function() {
 	return load('web.domain.SolrProduct').DAO.getListByKeywordPriceP(
@@ -54,9 +59,14 @@ SearchController.prototype.search = function() {
 		this.startIndex,
 		this.numRows)
 	.then( (products) => {
+		this.numRowsReturn = products.length;
+		const utils = load('common.Utils');
+		for (let i in products) {
+			products[i].title = utils.truncate(products[i].title, 55, ' ...');
+		}
 		return products;
 	})
 	.catch( (error) => {
 		return Promise.reject(error);
 	});
-}
+};
