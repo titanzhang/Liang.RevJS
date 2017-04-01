@@ -20,7 +20,7 @@ function SearchController(request) {
 	this.query = this.normalizeQuery(request);
 
 	this.keyword = this.query.q;
-	this.priceChangePercent = "[" + (this.query.ppl === '*')?'*':(this.query.ppl/100) + ' TO ' + (this.query.pph === '*')?'*':(this.query.pph/100) + "]";
+	this.priceChangePercent = "[" + ((this.query.ppl === '*')?'*':(this.query.ppl/100)) + ' TO ' + ((this.query.pph === '*')?'*':(this.query.pph/100)) + "]";
 	this.startIndex = Number(this.query.start);
 	this.numRows = Number(this.query.rows);
 }
