@@ -46,7 +46,7 @@ ProductDAO.getListByHash = function(hashList) {
 		let prefix = '';
 		for (let i in hashList) {
 			searchTerm += prefix + hashList[i];
-			prefix = ' OR ';
+			prefix = '%20OR%20';
 		}
 		searchTerm += ')';
 
@@ -66,14 +66,14 @@ ProductDAO.getListByHash = function(hashList) {
 	}
 }
 
-ProductDAO.getListByKeywordPriceP = function(keyword, priceP, start, numRows) {
+ProductDAO.getListByKeywordPriceP = function(keyword, pricePLow, pricePHigh, start, numRows) {
 	try {
-		const searchTerm = 'title:'+keyword;
-		const filterTerm = ['price_change_percent:'+priceP];
+		const searchTerm = 'title:' + encodeURIComponent(keyword);
+		const filterTerm = ['price_change_percent:['+pricePLow+'%20TO%20'+pricePHigh+']'];
 		const queryObj = {
 			q: searchTerm,
 			fq: filterTerm,
-			sort: 'price_change_percent asc',
+			sort: 'price_change_percent%20asc',
 			start: start,
 			rows: numRows
 		};

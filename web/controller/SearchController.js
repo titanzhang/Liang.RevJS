@@ -8,11 +8,12 @@ module.exports = function(request, response) {
 		response.render('search', {query: controller.query, products: products, pagination: controller.buildPagination()});
 	})
 	.catch( (error) => {
-		response.send({
-			status: false,
-			error: error.message
-		})
-	})
+		response.render('search', {query: controller.query, products: [], pagination: controller.buildPagination()});
+		// response.send({
+		// 	status: false,
+		// 	error: error.message
+		// })
+	});
 };
 
 function SearchController(request) {
@@ -20,7 +21,9 @@ function SearchController(request) {
 	this.query = this.normalizeQuery(request);
 
 	this.keyword = this.query.q;
-	this.priceChangePercent = "[" + ((this.query.ppl === '*')?'*':(this.query.ppl/100)) + ' TO ' + ((this.query.pph === '*')?'*':(this.query.pph/100)) + "]";
+	this.pricePLow = ((this.query.ppl === '*')?'*':(this.query.ppl/100));
+	this.pricePHigh = ((this.query.pph === '*')?'*':(this.query.pph/100));
+	// this.priceChangePercent = "[" + ((this.query.ppl === '*')?'*':(this.query.ppl/100)) + ' TO ' + ((this.query.pph === '*')?'*':(this.query.pph/100)) + "]";
 	this.startIndex = Number(this.query.start);
 	this.numRows = Number(this.query.rows);
 }
@@ -56,7 +59,8 @@ SearchController.prototype.buildPagination = function() {
 SearchController.prototype.search = function() {
 	return load('web.domain.SolrProduct').DAO.getListByKeywordPriceP(
 		this.keyword,
-		this.priceChangePercent,
+		this.pricePLow,
+		this.pricePHigh,
 		this.startIndex,
 		this.numRows)
 	.then( (products) => {

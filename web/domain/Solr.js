@@ -57,10 +57,10 @@ Solr.prototype.update = function(docList) {
 }
 
 Solr.prototype.query = function(searchTermObject) {
-	const url = require('url');
+	// const url = require('url');
 
 	// Construct protocol hostname pathname of url
-	let solrUrlObject = url.parse(this.getMaster() + this.CMD_QUERY);
+	// let solrUrlObject = url.parse(this.getMaster() + this.CMD_QUERY);
 
 	// Default return format is JSON
 	if (searchTermObject.wt === undefined) {
@@ -68,8 +68,11 @@ Solr.prototype.query = function(searchTermObject) {
 	}
 
 	// Construct the complete solr request URL
-	solrUrlObject.query = searchTermObject;
-	const solrUrl = require('url').format(solrUrlObject);
+	// solrUrlObject.query = searchTermObject;
+	// const solrUrl = require('url').format(solrUrlObject);
+
+	const solrUrl = this.getMaster() + this.CMD_QUERY + '?' + this.formatTerm(searchTermObject);
+	// console.log(solrUrl);
 
 	// Send request to solr server
 	let taskChain = load("common.Curl").get(solrUrl, this.TIMEOUT_QUERY);
@@ -89,6 +92,27 @@ Solr.prototype.query = function(searchTermObject) {
 	});
 
 	return taskChain;
+}
+
+Solr.prototype.formatTerm = function(searchTermObject) {
+	const util = require('util');
+	let termString = '';
+	let prefix = '';
+	for (let key in searchTermObject) {
+		const value = searchTermObject[key];
+		if (Array.isArray(value)) {
+			if (value.length > 0) {
+				for (let i in value) {
+					termString += util.format('%s%s=%s', prefix, key, value[i]);
+					prefix = '&';
+				}
+			}
+		} else {
+			termString += util.format('%s%s=%s', prefix, key, value);
+			prefix = '&';
+		}
+	}
+	return termString;
 }
 
 exports.manager = SolrManager;
