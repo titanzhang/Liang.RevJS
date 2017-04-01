@@ -61,14 +61,14 @@ var revServer = app.listen(loadConfig('server').port, function() {
 // Gracefully shutdown server
 var gracefulShutdown = function() {
   console.log("Received kill signal, shutting down gracefully.");
-  revServer.close(function() {
+  revServer.close( () => {
     console.log("Closed out remaining connections.");
     process.exit()
   });
   
-	setTimeout(function() {
-	     console.error("Could not close connections in time, forcefully shutting down");
-	     process.exit()
+	setTimeout( () => {
+		console.error("Could not close connections in time, forcefully shutting down");
+		process.exit()
 	}, 10*1000);
 }
 
