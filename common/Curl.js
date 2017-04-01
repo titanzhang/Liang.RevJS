@@ -6,6 +6,21 @@ var Curl = Curl || {};
 // Fail(http): { statusCode: <status code>, message: <error message> }
 // Fail: { message: <error message> }
 Curl.get = function(urlString, timeout) {
+	return this._get(urlString, timeout)
+	.catch( (response) => {
+		if (response.statusCode === undefined) {
+			return Promise.reject(response);
+		}
+
+		if (response.statusCode === 301 || response.statusCode === 302) {
+			return this._get(response.headers.location, timeout);
+		} else {
+			return Promise.reject(response);
+		}
+	})
+}
+
+Curl._get = function(urlString, timeout) {
 	return new Promise( (resolve, reject) => {
 		const urlObj = require('url').parse(urlString);
 		const httpClient = this._getClient(urlObj);
@@ -18,7 +33,8 @@ Curl.get = function(urlString, timeout) {
 				response.resume();
 				return reject({
 					statusCode: statusCode,
-					message: 'Request failed, status code: ' + statusCode
+					headers: response.headers,
+					message: 'Curl failed, status code: ' + statusCode
 				});
 			}
 
