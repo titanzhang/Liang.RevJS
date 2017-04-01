@@ -109,6 +109,20 @@ IndexController.extractPage = function(context) {
 		description = Utils.deepReplace(/\n\n/g, "\n", description);
 		product.description = description;
 
+		// Main image
+		let mainImage = selector("img[class='main_image']").attr('src');
+		if (mainImage === undefined) {
+			mainImage = '';
+		}
+		product.image = mainImage;
+
+		// Thumbnail
+		let thum = selector("link[itemprop='thumbnail']").attr('href');
+		if (thum === undefined) {
+			thum = '';
+		}
+		product.thumbnail = thum;
+		// console.log(product);
 		return product;
 	} catch(e) {
 		console.log(e);
@@ -132,7 +146,9 @@ IndexController.updateIndex = function(context) {
 			setUrl(url).
 			setPrice(product.price).
 			setPriceChange(0).
-			setPriceChangePercent(0);
+			setPriceChangePercent(0).
+			setImage(product.image).
+			setThumbnail(product.thumbnail);
 
 		// Create solr history object
 		let historyDO = new HistoryDO();
@@ -155,7 +171,12 @@ IndexController.updateIndex = function(context) {
 
 					return this.updateProduct(productDO, historyDO)
 				} else { // No price change, skip update
-					return existProduct;
+					// Image hack
+					if (existProduct.image === undefined || existProduct.image.length === 0) {
+						return this.updateProductOnly(productDO);
+					} else {
+						return existProduct;
+					}
 				}
 			}
 		});
@@ -169,6 +190,11 @@ IndexController.updateIndex = function(context) {
 		console.log(e);
 		return Promise.reject({message: 'IndexController.updateIndex(exception):' + e.message});
 	}
+}
+
+IndexController.updateProductOnly = function(productDO) {
+	const productDAO = load('web.domain.SolrProduct').DAO;		
+	return productDAO.add(productDO);
 }
 
 IndexController.updateProduct = function(productDO, historyDO) {

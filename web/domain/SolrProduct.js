@@ -122,6 +122,8 @@ function ProductDO() {
 	this.price = 0.0;
 	this.price_change = 0.0;
 	this.price_change_percent = 0.0;
+	this.image = '';
+	this.thumbnail = '';
 }
 
 ProductDO.prototype.setHash = function(hash) {
@@ -156,6 +158,16 @@ ProductDO.prototype.setPriceChange = function(priceChange) {
 
 ProductDO.prototype.setPriceChangePercent = function(priceChangePercent) {
 	this.price_change_percent = priceChangePercent;
+	return this;
+}
+
+ProductDO.prototype.setImage = function(image) {
+	this.image = image;
+	return this;
+}
+
+ProductDO.prototype.setThumbnail  = function(thumbnail) {
+	this.thumbnail = thumbnail;
 	return this;
 }
 
