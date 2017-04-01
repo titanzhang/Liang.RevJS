@@ -68,10 +68,11 @@ ProductDAO.getListByHash = function(hashList) {
 
 ProductDAO.getListByKeywordPriceP = function(keyword, priceP, start, numRows) {
 	try {
-		const searchTerm = 'title:'+keyword+' AND '
-			+ 'price_change_percent:' + priceP;
+		const searchTerm = 'title:'+keyword;
+		const filterTerm = ['price_change_percent:'+priceP];
 		const queryObj = {
 			q: searchTerm,
+			fq: filterTerm,
 			sort: 'price_change_percent asc',
 			start: start,
 			rows: numRows
