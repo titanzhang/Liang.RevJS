@@ -54,6 +54,26 @@ app.get('*', function(req, res) {
 	res.send('Not found');
 });
 
-app.listen(loadConfig('server').port, function() {
+var revServer = app.listen(loadConfig('server').port, function() {
 	console.log('Server is listening on port ' + loadConfig('server').port);
-})
+});
+
+// Gracefully shutdown server
+var gracefulShutdown = function() {
+  console.log("Received kill signal, shutting down gracefully.");
+  revServer.close(function() {
+    console.log("Closed out remaining connections.");
+    process.exit()
+  });
+  
+	setTimeout(function() {
+	     console.error("Could not close connections in time, forcefully shutting down");
+	     process.exit()
+	}, 10*1000);
+}
+
+// listen for TERM signal .e.g. kill 
+process.on ('SIGTERM', gracefulShutdown);
+
+// listen for INT signal e.g. Ctrl-C
+process.on ('SIGINT', gracefulShutdown);
