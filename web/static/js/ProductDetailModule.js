@@ -20,12 +20,14 @@ revjs.ProductDetailModule.init = function() {
 	var dialog = $('#' + config.resultID);
 	var titleObj = $('#' + config.titleID);
 	var detailObj = $('#' + config.detailID);
+	var imageObj = $('#' + config.imageID);
 	var historyObj = $('#' + config.historyID);
 	var historyTemplate = config.historyTemplate;
 
 	revjs.on('ProductDetail.show', this.onShowHide(dialog, true));
 	revjs.on('ProductDetail.hide', this.onShowHide(dialog, false));
 	revjs.on('ProductDetail.setTitle', this.onSetTitle(titleObj));
+	revjs.on('ProductDetail.setImage', this.onSetImage(imageObj));
 	revjs.on('ProductDetail.setDetail', this.onSetDetail(detailObj));
 	revjs.on('ProductDetail.setHistory', this.onSetHistory(historyObj, historyTemplate));
 	revjs.on('ProductDetail.getContent', this.onGetContent(config.serviceUrl, this.httpWrapper()));
@@ -41,6 +43,7 @@ revjs.ProductDetailModule.onClickProduct = function() {
 	var callback = function(event) {
 		revjs.trigger('ProductDetail.setTitle', 'Find product');
 		revjs.trigger('ProductDetail.setDetail', 'Processing ...');
+		revjs.trigger('ProductDetail.setImage', '');
 		revjs.trigger('ProductDetail.show');
 		revjs.trigger('ProductDetail.getContent', $(this).attr('reval'));
 		return false;
@@ -62,6 +65,13 @@ revjs.ProductDetailModule.onShowHide = function(titleObj, bShow) {
 revjs.ProductDetailModule.onSetTitle = function(titleObj) {
 	var callback = function(titleHTML) {
 		titleObj.html(titleHTML);
+	}
+	return callback;
+}
+
+revjs.ProductDetailModule.onSetImage = function(imageObj) {
+	var callback = function(imageHTML) {
+		imageObj.html(imageHTML);
 	}
 	return callback;
 }
@@ -105,10 +115,16 @@ revjs.ProductDetailModule.httpWrapper = function() {
 			revjs.trigger('ProductDetail.setTitle', '<a href="'+data.product.url+'" target="_blank">'+data.product.title+'</a>');
 			revjs.trigger('ProductDetail.setDetail', data.product.price + '('+ (data.product.price_change_percent*100).toFixed(2) +'%)');
 			revjs.trigger('ProductDetail.setHistory', data.history);
+			if (data.product.image !== undefined && data.product.image.trim().length > 0) {
+				revjs.trigger('ProductDetail.setImage', '<img src="'+data.product.image+'" alt="'+data.product.title+'" />')
+			} else {
+				revjs.trigger('ProductDetail.setImage', '');
+			}
 			revjs.trigger('ProductDetail.show');
 		} else {
 			revjs.trigger('ProductDetail.setTitle', 'Fail to find product');
 			revjs.trigger('ProductDetail.setDetail', '');
+			revjs.trigger('ProductDetail.setImage', '');
 			revjs.trigger('ProductDetail.setHistory', []);
 			revjs.trigger('ProductDetail.show');
 		}		

@@ -62,7 +62,7 @@
           </script>
         </div>
 
-        <!-- Dialog for product result -->
+        <!-- Dialog for product detail -->
         <div class="modal fade" tabindex="-1" role="dialog" id="productPageResult">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -71,6 +71,7 @@
                 <h4 class="modal-title" id="productTitle">Find Product</h4>
               </div>
               <div class="modal-body">
+                <div class="container" id="productImage"></div>
                 <p id="productDetail">Product detail</p>
                 <div class="container" id="productPriceHistory"></div>
               </div>
@@ -84,6 +85,7 @@
               serviceUrl: "/product/get/",
               resultID: "productPageResult",
               titleID: "productTitle",
+              imageID: "productImage",
               detailID: "productDetail",
               historyID: "productPriceHistory",
               historyTemplate: '<div class="row"><div class="col-md-4">{:price}</div><div class="col-md-4">{:date}</div></div>'

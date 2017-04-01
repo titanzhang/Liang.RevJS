@@ -77,6 +77,7 @@
         <hr/>
         <div class="container">
           <div class="row product-list-header">
+            <div class="col-md-1"></div>
             <div class="col-md-6">Product</div>
             <div class="col-md-2">Price</div>
             <div class="col-md-2">Price change</div>
@@ -84,6 +85,11 @@
           <% for (let i in products) { %>
           <% const product = products[i]; %>
           <div class="row product-row" reval="<%=product.url%>" revlink="product">
+            <div class="col-md-1">
+            <% if (product.thumbnail !== undefined && product.thumbnail.trim().length > 0) { %>
+              <img src="<%= product.thumbnail %>" />
+            <% } %>
+            </div>
             <div class="col-md-6"><%= product.title %></div>
             <div class="col-md-2"><%= product.price %></div>
             <div class="col-md-2"><%= (product.price_change_percent*100).toFixed(2) %>%</div>
@@ -120,6 +126,7 @@
                 <h4 class="modal-title" id="productTitle">Find Product</h4>
               </div>
               <div class="modal-body">
+                <div class="container" id="productImage"></div>
                 <p id="productDetail">Product detail</p>
                 <div class="container" id="productPriceHistory"></div>
               </div>
@@ -133,6 +140,7 @@
               serviceUrl: "/product/get/",
               resultID: "productPageResult",
               titleID: "productTitle",
+              imageID: "productImage",
               detailID: "productDetail",
               historyID: "productPriceHistory",
               historyTemplate: '<div class="row"><div class="col-md-4">{:price}</div><div class="col-md-4">{:date}</div></div>'
