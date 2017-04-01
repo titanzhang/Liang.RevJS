@@ -95,11 +95,18 @@
         <!-- Pagination -->
         <nav aria-label="...">
           <ul class="pager">
+            <li><a href="<%=pagination.first%>">Begin</a></li>
+
             <% if (pagination.previous) { %>
             <li><a href="<%=pagination.previous%>">Previous</a></li>
+            <% } else {%>
+            <li class="disabled"><a href="javascript: void(0)" class="disabled">Previous</a></li>
             <% } %>
+
             <% if (pagination.next) { %>
             <li><a href="<%=pagination.next%>">Next</a></li>
+            <% } else {%>
+            <li class="disabled"><a href="javascript: void(0)" class="disabled">Next</a></li>
             <% } %>
           </ul>
         </nav>

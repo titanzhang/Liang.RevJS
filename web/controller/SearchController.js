@@ -39,10 +39,11 @@ SearchController.prototype.buildPagination = function() {
 	const constrains = '?q=' + this.query.q + '&ppl=' + this.query.ppl + '&pph=' + this.query.pph;
 	const prevIndex = this.startIndex - this.numRows;
 	const nextIndex = this.startIndex + this.numRows;
+	const first = '&start=0';
 	const prev = (prevIndex >= 0)? '&start=' + prevIndex: '';
 	const next = (this.numRows == this.numRowsReturn)? '&start=' + nextIndex: '';
 
-	let pagination = {};
+	let pagination = {first: this.baseUrl + constrains + first + '&rows=' + this.query.rows};
 	if (prev !== '') {
 		pagination.previous = this.baseUrl + constrains + prev + '&rows=' + this.query.rows;
 	}
