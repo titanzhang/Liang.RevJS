@@ -1,3 +1,4 @@
+// Add new products not exsited in database
 module.exports = function() {
 	const job = new JobUpdateAll();
 	job.run()
@@ -158,24 +159,49 @@ JobUpdateAll.prototype.saveProducts = function(urls) {
 		const url = urls[i];
 
 		taskChain = taskChain.then( () => {
-			const apiUrl = loadConfig('api').productIndexAPI + require('querystring').escape(url);
-			return load('common.Curl').get(apiUrl, 10000);
+			return this.checkProduct(url);
 		})
-		.then( (httpReturn) => {
-			// console.log('Save ' + url);
-			const jsonReturn = JSON.parse(httpReturn.data);
-			if (jsonReturn.status) {
-				resultList.success.push(url);
-			} else {
-				resultList.fail.push(url);
-			}
-			return resultList;
-		})
-		.catch( (error) => {
-			console.log(error);
-			// resultList.fail.push(url);
+		.then( (productExists) => {
+			if (productExists) return Promise.resolve(resultList);
+			
+			return this.saveProduct(url)
+			.then( (saveSuccess) => {
+				if (saveSuccess) {
+					resultList.success.push(url);
+				} else {
+					resultList.fail.push(url);
+				}
+				return resultList;
+			});
 		});
 	}
 
 	return taskChain;
+}
+
+JobUpdateAll.prototype.checkProduct = function(url) {
+	const apiUrl = loadConfig('api').productAPI + require('querystring').escape(url);
+	return load('common.Curl').get(apiUrl, 10000)
+	.then( (httpReturn) => {
+		const jsonReturn = JSON.parse(httpReturn.data);
+		return jsonReturn.status;
+	})
+	.catch( (error) => {
+		console.error('checkProduct: ' + error.message);
+		return Promise.resolve(true);
+	});
+}
+
+JobUpdateAll.prototype.saveProduct = function(url) {
+	const apiUrl = loadConfig('api').productIndexAPI + require('querystring').escape(url);
+	return load('common.Curl').get(apiUrl, 10000)
+	.then( (httpReturn) => {
+		load('common.Utils').log('UpdateAll', url);
+		const jsonReturn = JSON.parse(httpReturn.data);
+		return jsonReturn.status;
+	})
+	.catch( (error) => {
+		console.error('saveProduct: ' + error.message);
+		return Promise.resovle(false);
+	});
 }
