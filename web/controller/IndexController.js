@@ -97,6 +97,18 @@ IndexController.extractPage = function(context) {
 		}
 		product.price = parseFloat(price.replace('$', ''));
 
+		// Get MSRP
+		let msrp = selector("dl[id='msrp']").attr('data-base-msrp');
+		if (msrp === undefined) {
+			product.msrp = price;
+		} else {
+			product.msrp = parseFloat(msrp.replace('$', ''));
+		}
+
+		// Calculate price change
+		product.priceChange = product.price - product.msrp;
+		product.priceChangePercent = product.priceChange / (product.msrp == 0? 0.1: product.msrp);
+
 		// Get Description
 		let description = selector('#product_description_content').text();
 		if (description === undefined) {
@@ -145,8 +157,9 @@ IndexController.updateIndex = function(context) {
 			setContent(product.description).
 			setUrl(url).
 			setPrice(product.price).
-			setPriceChange(0).
-			setPriceChangePercent(0).
+			setMsrp(product.msrp).
+			setPriceChange(product.priceChange).
+			setPriceChangePercent(product.priceChangePercent).
 			setImage(product.image).
 			setThumbnail(product.thumbnail);
 
@@ -162,17 +175,16 @@ IndexController.updateIndex = function(context) {
 		taskChain = taskChain.then( (existProduct) => {
 			if (existProduct === undefined) { // New product: add to solr
 				return this.updateProduct(productDO, historyDO);
-			} else { // Existing product: calculate price change and update solr
-				
-				const oldPrice = existProduct.price;
-				if (product.price != oldPrice) { // Price changed, need to update index
-					productDO.setPriceChange(product.price - oldPrice);
-					productDO.setPriceChangePercent(productDO.price_change/(oldPrice==0?0.1:oldPrice));
+			} else {
+				// Existing product: calculate price change and update solr
+				if (product.price != existProduct.price) {
+					// Price changed, need to update index
+					return this.updateProduct(productDO, historyDO);
+				} else {
+					// No price change, skip update
 
-					return this.updateProduct(productDO, historyDO)
-				} else { // No price change, skip update
-					// Image hack
-					if (existProduct.image === undefined || existProduct.image.length === 0) {
+					// Image hack, MSRP hack
+					if (existProduct.msrp === undefined || existProduct.image === undefined || existProduct.image.length === 0) {
 						return this.updateProductOnly(productDO);
 					} else {
 						return existProduct;

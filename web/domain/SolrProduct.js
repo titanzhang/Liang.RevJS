@@ -121,6 +121,7 @@ function ProductDO() {
 	this.content = '';
 	this.url = '';
 	this.price = 0.0;
+	this.msrp = 0.0;
 	this.price_change = 0.0;
 	this.price_change_percent = 0.0;
 	this.image = '';
@@ -149,6 +150,11 @@ ProductDO.prototype.setUrl = function(url) {
 
 ProductDO.prototype.setPrice = function(price) {
 	this.price = price;
+	return this;
+}
+
+ProductDO.prototype.setMsrp = function(msrp) {
+	this.msrp = msrp;
 	return this;
 }
 
