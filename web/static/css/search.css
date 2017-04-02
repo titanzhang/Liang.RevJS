@@ -6,6 +6,7 @@ div.product-list-header {
 div.product-row {
 	margin-top: 5px;
 	cursor: pointer;
+	height: 50px;
 }
 
 div.product-row:hover {
