@@ -9,9 +9,3 @@ See [demo website](http://price.liang.center)
 
 ### Architecture
 
-### TODO
-* Parse product pages
-* Index product information
-* Frontend
-
-
